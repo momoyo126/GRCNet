@@ -11,7 +11,7 @@ from pointcept.models.builder import MODELS
 from pointcept.models.utils import offset2batch, batch2offset
 from .cic import CIC
 from .ca import CA
-from .utils import computer_pxpy, range_to_voxel_pxpy_test
+from .utils import computer_pxpy, range_to_voxel_pxpy
 
 
 class BasicConvolutionBlock(nn.Module):
@@ -335,7 +335,7 @@ class GRCNet(nn.Module):
         x3 = self.voxel_stage3(x2)
         x4 = self.voxel_stage4(x3)
 
-        px, py = range_to_voxel_pxpy_test(x4,z0,px, py)
+        px, py = range_to_voxel_pxpy(x4,z0,px, py)
 
         fusion_z, range_z, range_mu, loss = self.CIC(x4, down4c, px, py)
         fusion_z = self.CA(x4, range_z, range_mu, fusion_z, down4c)

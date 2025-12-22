@@ -1,9 +1,6 @@
-import numpy as np
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from pointcept.models.builder import MODELS
-from pointcept.models.utils import offset2batch, batch2offset
+from pointcept.models.utils import batch2offset
 from .utils import range_to_point
 
 
@@ -39,13 +36,11 @@ class CIC(nn.Module):
         r2v_sigma = range_to_point(range_sigma, proj_x, proj_y, batch2offset(voxel_tensor.C[:, 3]))
         r2v_z = range_to_point(range_z, proj_x, proj_y, batch2offset(voxel_tensor.C[:, 3]))
 
-        # 计算模态权重
         _range_sigma = torch.exp(1 / r2v_sigma.mean(dim=1, keepdim=True))
         _voxel_sigma = torch.exp(1 / voxel_sigma.mean(dim=1, keepdim=True))
         range_w = _range_sigma / (_range_sigma + _voxel_sigma)
         voxel_w = _voxel_sigma / (_range_sigma + _voxel_sigma)
 
-        # 加权融合
         r2v4 = range_w * r2v_z
         x4F = voxel_w * voxel_tensor.F
         fusion_z = self.point_transforms(torch.cat([x4F, r2v4], dim=1))
@@ -81,24 +76,15 @@ class CIC(nn.Module):
         返回值:
         KL散度，形状为[B, H, W] (torch.Tensor)  或者 [N,]
         """
-        # 计算sigma的平方，即协方差矩阵的对角元素
-        # print(sigma1)
-        # print(sigma2)
         eps = 1e-5
         sigma1_squared = sigma1 ** 2 + eps
         sigma2_squared = sigma2 ** 2 + eps
 
-        # 计算KL散度的各项
         term1 = sigma1_squared / sigma2_squared
         term2 = (mu2 - mu1) ** 2 / sigma2_squared
         term3 = torch.log(sigma2_squared) - torch.log(sigma1_squared)
 
         kl = 0.5 * (term1 + term2 - 1 + term3)
-        # print(kl.shape)
-
-        # 对维度 C 求和，得到形状为 [B, H, W] 的张量或者 [N,] 的张量
         kl_sum = kl.sum(dim=1)
-        # print('1:',kl_sum.detach().cpu().numpy())
         kl_loss = kl_sum.mean()
-        # print('2:',kl_loss.detach().cpu().numpy())
         return kl_loss

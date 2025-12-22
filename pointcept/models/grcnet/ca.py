@@ -1,16 +1,7 @@
-import numpy as np
-import math
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-import torchsparse
-import torchsparse.nn as spnn
-from pointcept.models.builder import MODELS
-from pointcept.models.utils import offset2batch, batch2offset
-from torchsparse import SparseTensor, PointTensor
-from .utils import range_to_point, point_to_voxel, voxel_to_point, point_to_voxel_segment, range_to_voxel_pxpy
+from pointcept.models.utils import batch2offset
 from .MultiHeadAttention import MultiHeadAttention
-import os
 
 
 class CA(nn.Module):
