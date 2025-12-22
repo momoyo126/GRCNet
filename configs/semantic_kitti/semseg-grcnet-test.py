@@ -6,7 +6,7 @@ mix_prob = 0
 empty_cache = False
 enable_amp = True
 seed = 13256645
-# weight = 'exp/semantic_kitti/grcnet-w2048-c01/model/model_best.pth'
+
 # model settings
 model = dict(
     type="GRCSegmentor",
@@ -23,16 +23,6 @@ model = dict(
 # scheduler settings
 epoch = 50
 eval_epoch = 50
-# optimizer = dict(type="AdamW", lr=0.002, weight_decay=0.005)
-# scheduler = dict(
-#     type="OneCycleLR",
-#     max_lr=optimizer["lr"],
-#     pct_start=0.04,
-#     anneal_strategy="cos",
-#     div_factor=10.0,
-#     final_div_factor=100.0,
-# )
-
 optimizer = dict(
     type='SGD', lr=0.24, weight_decay=0.0001, momentum=0.9, nesterov=True)
 scheduler = dict(
@@ -91,6 +81,7 @@ data = dict(
         split="train",
         data_root=data_root,
         transform=[
+            # dict(type='RandomDistanceDropout', dropout_ratio=1, mode='sigmoid', steepness=5, midpoint=0.3, maxdist=120, min_ratio=0.1),
             dict(type="RandomDropout", dropout_ratio=0.2, dropout_application_ratio=0.5),
             dict(type="AddNoise", p=0.5),
             dict(type="RandomRotate", angle=[-1, 1], axis="z", center=[0, 0, 0], p=0.5),
