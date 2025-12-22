@@ -176,7 +176,6 @@ class InvResBlock(nn.Module):
         if pooling:
             self.dropout = nn.Dropout2d(p=dropout_rate)
             self.pool = nn.AvgPool2d(kernel_size=kernel_size, stride=2, padding=1)
-            # self.pool = nn.MaxPool2d(kernel_size=kernel_size, stride=2, padding=1)
         else:
             self.dropout = nn.Dropout2d(p=dropout_rate)
 
@@ -310,8 +309,6 @@ class GRCNet(nn.Module):
 
         rangeview = input_dict['proj_range_remission']
         px, py = computer_pxpy(feat[:,:3].clone().detach(), 2048)
-
-        # import pdb; pdb.set_trace()
         
         coord = torch.cat(
             [grid_coord.int(), batch.unsqueeze(-1).int()], dim=1

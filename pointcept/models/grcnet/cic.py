@@ -34,18 +34,10 @@ class CIC(nn.Module):
 
         voxel_mu = self.voxel_mu(voxel_tensor.F)
         voxel_sigma = self.softplus(self.voxel_sigma(voxel_tensor.F)) + 1e-5
-        voxel_sample = torch.randn_like(voxel_mu, device=voxel_mu.device)
-        if self.training:
-            voxel_z = voxel_mu + voxel_sigma * voxel_sample
-        else:
-            voxel_z = voxel_mu
-        # voxel_z = voxel_mu
 
         r2v_mu = range_to_point(range_mu, proj_x, proj_y, batch2offset(voxel_tensor.C[:, 3]))
         r2v_sigma = range_to_point(range_sigma, proj_x, proj_y, batch2offset(voxel_tensor.C[:, 3]))
         r2v_z = range_to_point(range_z, proj_x, proj_y, batch2offset(voxel_tensor.C[:, 3]))
-
-        # print(r2v_sigma.mean(dim=0).cpu().numpy(),voxel_sigma.mean(dim=0).cpu().numpy())
 
         # 计算模态权重
         _range_sigma = torch.exp(1 / r2v_sigma.mean(dim=1, keepdim=True))
@@ -55,8 +47,7 @@ class CIC(nn.Module):
 
         # 加权融合
         r2v4 = range_w * r2v_z
-        x4F = voxel_w * voxel_z
-        # x4F = voxel_w * voxel_tensor.F
+        x4F = voxel_w * voxel_tensor.F
         fusion_z = self.point_transforms(torch.cat([x4F, r2v4], dim=1))
         zero_mu = torch.zeros_like(x4F)
         one_sigma = torch.ones_like(x4F)
@@ -64,21 +55,14 @@ class CIC(nn.Module):
         if self.training:
             loss_kl_vn = self.kl_divergence_diag_gaussians(voxel_mu, voxel_sigma, zero_mu, one_sigma)
             loss_kl_rn = self.kl_divergence_diag_gaussians(r2v_mu, r2v_sigma, zero_mu, one_sigma)
-            # print(loss_kl_vn.detach().cpu().numpy(), loss_kl_rn.detach().cpu().numpy())
-    
             loss_kl_vr = -self.kl_divergence_diag_gaussians(voxel_mu, voxel_sigma, r2v_mu, r2v_sigma)
             if loss_kl_vr < -100:
                 loss_kl_vr *= 0
             loss_kl_rv = -self.kl_divergence_diag_gaussians(r2v_mu, r2v_sigma, voxel_mu, voxel_sigma)
             if loss_kl_rv < -100:
                 loss_kl_rv *= 0
-            # print(loss_kl_vn.detach().cpu().numpy(), loss_kl_rn.detach().cpu().numpy(),
-            #       loss_kl_rv.detach().cpu().numpy(), loss_kl_vr.detach().cpu().numpy(),
-            #       '-------',voxel_mu.mean().detach().cpu().numpy(),voxel_sigma.mean().detach().cpu().numpy(),
-            #       range_mu.mean().detach().cpu().numpy(),range_sigma.mean().detach().cpu().numpy())
     
             loss = self.kl[0] * loss_kl_vn + self.kl[1] * loss_kl_rn + self.kl[2] * loss_kl_vr + self.kl[3] * loss_kl_rv
-            # loss = self.kl[0] * loss_kl_vn + self.kl[1] * loss_kl_rn
         else:
             loss = 0
 
