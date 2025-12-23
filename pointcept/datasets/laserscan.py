@@ -1,15 +1,5 @@
-#!/usr/bin/env python3
-# This file is covered by the LICENSE file in the root of this project.
-import time
-
 import numpy as np
-import math
-import random
-
-import torch
-from scipy.spatial.transform import Rotation as R
 from .transform import TRANSFORMS
-import os
 import matplotlib.pyplot as plt
 
 
@@ -145,16 +135,6 @@ class LaserScan:
     def __call__(self, data_dict):
         data_dict = self.do_range_projection(data_dict)
         return data_dict
-
-    def save(self, name, image):
-        path0 = name
-        figsize = (2048 / 100, 64 / 100)  # 将尺寸从像素转换为英寸，这里假设 100 DPI
-        fig, ax = plt.subplots(figsize=figsize)
-        ax.imshow(image, cmap='inferno', aspect='auto', vmin=0, vmax=1)
-        ax.axis('off')
-        plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
-        plt.savefig(path0, dpi=100, bbox_inches='tight', pad_inches=0)
-        plt.close()
 
 
 @TRANSFORMS.register_module()
