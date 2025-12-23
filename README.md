@@ -7,6 +7,7 @@ The latest code will be released soon...
 Please follow [Pointcept](https://github.com/Pointcept/Pointcept.git) to install the base environment and [torchsparse](https://github.com/mit-han-lab/torchsparse.git) to install the Torchsparse2.0.
 
 ## Data Preparation
+### SemanticKITTI
 - Download [SemanticKITTI](http://www.semantic-kitti.org/dataset.html#download) dataset.
 - Link dataset to codebase.
   ```bash
@@ -21,7 +22,8 @@ Please follow [Pointcept](https://github.com/Pointcept/Pointcept.git) to install
   mkdir -p data
   ln -s ${SEMANTIC_KITTI_DIR} ${CODEBASE_DIR}/data/semantic_kitti
   ```
-  
+
+### SemanticSTF
 - Download [SemanticSTF](https://github.com/xiaoaoran/SemanticSTF.git) dataset.
 - Link dataset to codebase.
   ```bash
