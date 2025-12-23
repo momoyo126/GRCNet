@@ -64,18 +64,6 @@ class CIC(nn.Module):
         return fusion_z, range_z, range_mu, loss
 
     def kl_divergence_diag_gaussians(self, mu1, sigma1, mu2, sigma2):
-        """
-        计算每对多元高斯分布之间的KL散度，支持批量操作
-
-        参数:
-        mu1: 第一个高斯分布的均值，形状为 [B, C, H, W] (torch.Tensor) 或者 [N, C]
-        sigma1: 第一个高斯分布的标准差，形状为 [B, C, H, W] (torch.Tensor) 或者 [N, C]
-        mu2: 第二个高斯分布的均值，形状为 [B, C, H, W] (torch.Tensor) 或者 [N, C]
-        sigma2: 第二个高斯分布的标准差，形状为 [B, C, H, W] (torch.Tensor) 或者 [N, C]
-
-        返回值:
-        KL散度，形状为[B, H, W] (torch.Tensor)  或者 [N,]
-        """
         eps = 1e-5
         sigma1_squared = sigma1 ** 2 + eps
         sigma2_squared = sigma2 ** 2 + eps

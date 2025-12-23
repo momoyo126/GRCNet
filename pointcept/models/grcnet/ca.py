@@ -28,7 +28,6 @@ class CA(nn.Module):
 
 
     def forward(self, voxel_tensor, range_z, range_mu, fusion_z, down4c):
-        # print(voxel_tensor.F.shape,range_z.shape,range_mu.shape,fusion_z.shape,down4c.shape)
         b, c, h, w = down4c.shape
         # query: prototypes [n, C] -> [B,n,C]
         # key: down4c [B,C,H,W] -> [B,HW,C]
@@ -46,10 +45,7 @@ class CA(nn.Module):
         q_2 = self.attn_w_q_2(feat_padded.detach())  # [B,Length,C]
         k_2 = self.attn_w_k_2(attn_z)  # [B,n,C]
         v_2 = self.attn_w_v_2(attn_z)
-        # attn_output_2 = self.attn_multihead_attn_2(q_2,k_2,v_2)
-        attn_output_2 = self.attn_multihead_attn_2(q_2, k_2, v_2, mask) + feat_padded.detach()  # [B,N',C]
-
-        assert not torch.any(torch.isnan(attn_output_2)), 'attn_output2'
+        attn_output_2 = self.attn_multihead_attn_2(q_2, k_2, v_2, mask) + feat_padded.detach()
         v4 = self.feat_unpadding(attn_output_2, offset)
         new_fusion_z = self.attn_point_transforms(torch.cat([fusion_z, v4], dim=1))
         return new_fusion_z
